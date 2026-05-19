@@ -1,6 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '../database/prisma.service';
+import { hash } from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -17,8 +18,10 @@ export class UsersService {
       throw new ConflictException('This email is already in use');
     }
 
+    const hashedPassword = await hash(password, 8);
+
     const user = this.prismaService.user.create({
-      data: { name, email, password },
+      data: { name, email, password: hashedPassword },
     });
 
     return user;
